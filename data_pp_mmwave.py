@@ -30,4 +30,8 @@ if __name__=='__main__':
     walking_data = pd.read_csv(data_dir + 'walk_one.csv')
     walking_data = read_data(walking_data)
     walking_data = segment_n_reshape(walking_data)
+
+    inactive_data = pd.read_csv(data_dir + 'inactive_1.csv')
+    inactive_data = read_data(inactive_data)
+    inactive_data
     
