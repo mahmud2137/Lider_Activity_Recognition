@@ -51,13 +51,28 @@ for i in range(X_test.shape[2]):
 opt  = Adam(learning_rate=0.0001)
 input_shape = X_train.shape[1:3]
 model = Sequential()
-model.add(LSTM(100, input_shape=input_shape, return_sequences=True))
-model.add(LSTM(100))
-model.add(Dense(100, activation = 'relu'))
+model.add(LSTM(20, input_shape=input_shape, return_sequences=False))
+# model.add(LSTM(100))
+model.add(Dense(10, activation = 'relu'))
 model.add(Dropout(0.5))
-model.add(Dense(50, activation = 'relu'))
+# model.add(Dense(50, activation = 'relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 model.compile(loss='mean_squared_error', optimizer=opt)
 model.summary()
-hist = model.fit(X_train, y_train, epochs=500, batch_size=32, verbose=2)
+hist = model.fit(X_train, y_train, epochs=400,
+                validation_split=0.1,
+                batch_size=32, verbose=2)
+
+y_pred = model.predict(X_test)
+y_pred  = y_pred > 0.5
+y_pred = y_pred.astype('int').reshape(-1)
+test_score = sum(y_test == y_pred)/len(y_test)
+print('test score:',test_score)
+
+plt.figure(figsize=(10,8))
+plt.plot(hist.history['loss'], label = 'Training Loss')
+plt.plot(hist.history['val_loss'], label = 'Validation Loss')
+plt.legend(loc = 'best')
+plt.savefig('learning_curve.png')
+
