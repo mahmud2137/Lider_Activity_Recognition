@@ -4,6 +4,9 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 
+from keras.models import Sequential, Model
+from keras.models import model_from_json
+
 # Change the configuration file name
 configFileName = '1443config.cfg'
 
@@ -318,10 +321,20 @@ p.setLabel('left',text = 'Y position (m)')
 p.setLabel('bottom', text= 'X position (m)')
 s = p.plot([],[],pen=None,symbol='o')
     
-   
+# load json and create model
+json_file = open('model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+loaded_model = model_from_json(loaded_model_json)
+# load weights into new model
+loaded_model.load_weights("model.h5")
+keys = ['x','y','z','doppler', 'peakVal']
+print("Loaded model from disk")
+
 # Main loop 
 detObj = {}  
-frameData = {}    
+frameData = {}
+activity = {}    
 currentIndex = 0
 while True:
     try:
@@ -332,7 +345,19 @@ while True:
             # Store the current frame into frameData
             frameData[currentIndex] = detObj
             currentIndex += 1
-        
+        if currentIndex>0 and currentIndex % 5 == 0:
+            for t in range(currentIndex-4, currentIndex+1):
+                if t == 0:
+                    sample = np.array([x[t].get(k).mean() for k in keys])
+                else:
+                    sample = np.vstack((sample , np.array([x[2].get(k).mean() for k in keys])))
+
+            sample = np.expand_dims(sample, axis=0)
+            pred = loaded_model.predict(sample)
+            pred = 1 if pred>0.5 else 0
+            activity[currentIndex] = pred
+
+
         time.sleep(0.033) # Sampling frequency of 30 Hz
         
     # Stop the program and close everything if Ctrl + c is pressed
@@ -342,8 +367,8 @@ while True:
         Dataport.close()
         win.close()
         break
+
         
-    
 
 
 
