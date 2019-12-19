@@ -355,6 +355,7 @@ while True:
             sample = np.expand_dims(sample, axis=0)
             pred = loaded_model.predict(sample)
             pred = 1 if pred>0.5 else 0
+            #use this 'pred' Variable for getting activity label, 1 for active, 0 for inactive
             activity[currentIndex] = pred
 
 
