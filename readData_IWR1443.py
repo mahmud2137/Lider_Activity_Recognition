@@ -347,7 +347,7 @@ while True:
             currentIndex += 1
         if currentIndex>0 and currentIndex % 5 == 0:
             for t in range(currentIndex-4, currentIndex+1):
-                if t == 0:
+                if t == currentIndex-4:
                     sample = np.array([x[t].get(k).mean() for k in keys])
                 else:
                     sample = np.vstack((sample , np.array([x[2].get(k).mean() for k in keys])))
